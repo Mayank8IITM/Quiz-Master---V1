@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="text-center py-5">
+    <h1 class="display-4"><b>Welcome to Quiz Master</b></h1>
+    <p class="lead"><i>Practice with us , on our comprehensive quiz platform</i></p>
+    {% if not current_user.is_authenticated %}
+        <div class="mt-4">
+            <a href="{{ url_for('login') }}" class="btn btn-primary me-2">Login</a>
+            <a href="{{ url_for('register') }}" class="btn btn-outline-primary">Register</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

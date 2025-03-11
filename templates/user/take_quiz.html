@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col">
+            <h2>{{ quiz.title }}</h2>
+            <p class="text-muted">Duration: {{ quiz.duration }} minutes</p>
+        </div>
+        <div class="col text-end">
+            <div id="timer" class="h4"></div>
+        </div>
+    </div>
+
+    <form method="POST" action="{{ url_for('submit_quiz', quiz_id=quiz.id) }}" id="quizForm">
+        {% for question in quiz.questions %}
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Question {{ loop.index }}</h5>
+                <p class="card-text">{{ question.question_text }}</p>
+                <div class="list-group">
+                    <label class="list-group-item">
+                        <input type="radio" name="question_{{ question.id }}" value="1" class="form-check-input me-2" required>
+                        {{ question.option_1 }}
+                    </label>
+                    <label class="list-group-item">
+                        <input type="radio" name="question_{{ question.id }}" value="2" class="form-check-input me-2" required>
+                        {{ question.option_2 }}
+                    </label>
+                    <label class="list-group-item">
+                        <input type="radio" name="question_{{ question.id }}" value="3" class="form-check-input me-2" required>
+                        {{ question.option_3 }}
+                    </label>
+                    <label class="list-group-item">
+                        <input type="radio" name="question_{{ question.id }}" value="4" class="form-check-input me-2" required>
+                        {{ question.option_4 }}
+                    </label>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+        <div class="d-grid gap-2 col-md-6 mx-auto mb-4">
+            <button type="submit" class="btn btn-primary btn-lg">Submit Quiz</button>
+        </div>
+    </form>
+</div>
+
+{% block scripts %}
+<script>
+    // Timer functionality
+    const duration = {{ quiz.duration }};
+    let timeLeft = duration * 60;
+    
+    function updateTimer() {
+        const minutes = Math.floor(timeLeft / 60);
+        const seconds = timeLeft % 60;
+        document.getElementById('timer').textContent = 
+            `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        
+        if (timeLeft === 0) {
+            document.getElementById('quizForm').submit();
+        } else {
+            timeLeft--;
+            setTimeout(updateTimer, 1000);
+        }
+    }
+    
+    updateTimer();
+</script>
+{% endblock %}
+{% endblock %}

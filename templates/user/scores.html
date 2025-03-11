@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h2>My Quiz Scores</h2>
+    {% if scores %}
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Quiz Title</th>
+                <th>Score (%)</th>
+                <th>Date</th>
+                <th>Subject</th>
+                <th>Chapter</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for score in scores %}
+            <tr>
+                <td>{{ score.quiz.title }}</td>
+                <td>{{ "%.2f"|format(score.score) }}%</td>
+                <td>{{ score.attempt_date.strftime('%Y-%m-%d %H:%M') }}</td>
+                <td>{{ score.quiz.chapter.subject.name }}</td>
+                <td>{{ score.quiz.chapter.name }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No scores to display.</p>
+    {% endif %}
+</div>
+{% endblock %}

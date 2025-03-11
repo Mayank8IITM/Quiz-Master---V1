@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12 mb-4">
+        <h2>Welcome, {{ current_user.full_name }}</h2>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Available Quizzes</h5>
+                <p class="card-text">{{ available_quizzes|length }} quizzes available</p>
+                <a href="{{ url_for('available_quizzes') }}" class="btn btn-primary">View Quizzes</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">My Scores</h5>
+                <p class="card-text">{{ completed_quizzes|length }} quizzes completed</p>
+                <a href="{{ url_for('view_scores') }}" class="btn btn-primary">View Scores</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Profile</h5>
+                <p class="card-text">Update your information</p>
+                <a href="{{ url_for('edit_profile') }}" class="btn btn-primary">Edit Profile</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Performance Overview</h5>
+                <canvas id="performanceChart"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Recent Activity</h5>
+                <div class="list-group" id="completedQuizzes">
+                    {% for score in completed_quizzes|sort(attribute='attempt_date', reverse=true) %}
+                    <div class="list-group-item">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">{{ score.quiz.title }}</h6>
+                            <small>{{ score.attempt_date.strftime('%Y-%m-%d %H:%M') }}</small>
+                        </div>
+                        <p class="mb-1">Score: {{ "%.2f"|format(score.score) }}%</p>
+                        <small>{{ score.quiz.chapter.subject.name }} - {{ score.quiz.chapter.name }}</small>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+<!-- My Scores Card in dashboard.html -->
+<div class="col-md-4 mb-4">
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">My Scores</h5>
+            <p class="card-text">{{ completed_quizzes|length }} quizzes completed</p>
+            <a href="{{ url_for('view_scores') }}" class="btn btn-primary">View Scores</a>
+        </div>
+    </div>
+</div>
+
+
+{% block scripts %}
+<script>
+    // Performance Chart
+    const performanceCtx = document.getElementById('performanceChart').getContext('2d');
+    new Chart(performanceCtx, {
+        type: 'line',
+        data: {
+            labels: [
+                {% for score in (completed_quizzes|sort(attribute='attempt_date'))[-5:] %}
+                    '{{ score.quiz.title }}'{% if not loop.last %}, {% endif %}
+                {% endfor %}
+            ],
+            datasets: [{
+                label: 'Score %',
+                data: [
+                    {% for score in (completed_quizzes|sort(attribute='attempt_date'))[-5:] %}
+                        {{ score.score }}{% if not loop.last %}, {% endif %}
+                    {% endfor %}
+                ],
+                fill: false,
+                borderColor: 'rgb(75, 192, 192)',
+                tension: 0.1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}

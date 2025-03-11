@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h2>Search Results for "{{ query }}"</h2>
+    
+    <hr>
+    <h3>Users</h3>
+    {% if user_results %}
+      <ul class="list-group">
+      {% for user in user_results %}
+        <li class="list-group-item">
+            {{ user.full_name }} ({{ user.email }})
+            <!-- Optionally, add links for edit or delete here -->
+        </li>
+      {% endfor %}
+      </ul>
+    {% else %}
+      <p>No matching users found.</p>
+    {% endif %}
+    
+    <hr>
+    <h3>Subjects</h3>
+    {% if subject_results %}
+      <ul class="list-group">
+      {% for subject in subject_results %}
+        <li class="list-group-item">
+            {{ subject.name }}
+            <!-- Optionally, add links for edit or delete here -->
+        </li>
+      {% endfor %}
+      </ul>
+    {% else %}
+      <p>No matching subjects found.</p>
+    {% endif %}
+    
+    <hr>
+    <h3>Quizzes</h3>
+    {% if quiz_results %}
+      <ul class="list-group">
+      {% for quiz in quiz_results %}
+        <li class="list-group-item">
+            {{ quiz.title }}
+            <!-- Optionally, add links for edit or delete here -->
+        </li>
+      {% endfor %}
+      </ul>
+    {% else %}
+      <p>No matching quizzes found.</p>
+    {% endif %}
+    
+</div>
+{% endblock %}

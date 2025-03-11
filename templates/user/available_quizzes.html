@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col">
+            <h2>Available Quizzes</h2>
+        </div>
+    </div>
+    <div class="row">
+        {% for quiz in quizzes %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">{{ quiz.title }}</h5>
+                    <h6 class="card-subtitle mb-2 text-muted">{{ quiz.chapter.subject.name }} - {{ quiz.chapter.name }}</h6>
+                    <p class="card-text">
+                        <strong>Start Date:</strong> {{ quiz.start_date.strftime('%Y-%m-%d %H:%M') }}<br>
+                        <strong>End Date:</strong> {{ quiz.end_date.strftime('%Y-%m-%d %H:%M') }}<br>
+                        <strong>Duration:</strong> {{ quiz.duration }} minutes<br>
+                        <strong>Questions:</strong> {{ quiz.questions|length }}
+                    </p>
+                    <div class="mt-auto">
+                        <a href="{{ url_for('take_quiz', quiz_id=quiz.id) }}" class="btn btn-primary">Start Quiz</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

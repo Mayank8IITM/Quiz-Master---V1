@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12 mb-4">
+        <h2>Admin Dashboard</h2>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-3 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Subjects</h5>
+                <p class="card-text">Total Subjects: {{ subjects|length }}</p>
+                <a href="{{ url_for('manage_subjects') }}" class="btn btn-primary">Manage Subjects</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Chapters</h5>
+                <p class="card-text">Manage subject chapters</p>
+                <a href="{{ url_for('manage_chapters') }}" class="btn btn-primary">Manage Chapters</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Quizzes</h5>
+                <p class="card-text">Total Quizzes: {{ quizzes|length }}</p>
+                <a href="{{ url_for('manage_quizzes') }}" class="btn btn-primary">Manage Quizzes</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Users</h5>
+                <p class="card-text">Total Users: {{ users|length }}</p>
+                <a href="{{ url_for('view_users') }}" class="btn btn-primary">View Users</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Quiz Statistics</h5>
+                <canvas id="quizStats"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">User Activity</h5>
+                <canvas id="userActivity"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Quiz Statistics Chart
+    const quizStatsCtx = document.getElementById('quizStats').getContext('2d');
+    new Chart(quizStatsCtx, {
+        type: 'bar',
+        data: {
+            labels: [
+    {% for subject in subjects %}
+        "{{ subject.name }}"{% if not loop.last %}, {% endif %}
+    {% endfor %}
+],
+datasets: [{
+    label: 'Number of Quizzes',
+    data: [
+        {% for subject in subjects %}
+            {% set ns = namespace(total=0) %}
+            {% for chapter in subject.chapters %}
+                {% set ns.total = ns.total + (chapter.quizzes|length) %}
+            {% endfor %}
+            {{ ns.total }}{% if not loop.last %}, {% endif %}
+        {% endfor %}
+    ],
+    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+    borderColor: 'rgba(54, 162, 235, 1)',
+    borderWidth: 1
+}]
+
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    // User Activity Chart
+    const userActivityCtx = document.getElementById('userActivity').getContext('2d');
+    new Chart(userActivityCtx, {
+        type: 'line',
+        data: {
+            labels: [
+                {% for quiz in (quizzes|sort(attribute='date_of_quiz'))[-5:] %}
+                    "{{ quiz.title }}"{% if not loop.last %}, {% endif %}
+                {% endfor %}
+            ],
+            datasets: [{
+                label: 'Average Score',
+                data: [
+                    {% for quiz in (quizzes|sort(attribute='date_of_quiz'))[-5:] %}
+                        {% if quiz.scores|length > 0 %}
+                            {{ (quiz.scores | map(attribute='score') | sum) / (quiz.scores|length) | round(2) }}
+                        {% else %}
+                            0
+                        {% endif %}{% if not loop.last %}, {% endif %}
+                    {% endfor %}
+                ],
+                fill: false,
+                borderColor: 'rgb(75, 192, 192)',
+                tension: 0.1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100
+                }
+            }
+        }
+    });
+</script>
+
+
+{% endblock %}
